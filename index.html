@@ -1,0 +1,62 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨色生香 - 唯美耽美创作站</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
+    <style>
+        :root {
+          --lavender: #E0BBE4;
+          --sakura: #FFC1CC;
+          --mint: #D0F0C0;
+        }
+        body {
+            font-family: 'Noto Serif SC', serif;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .dark .glass {
+            background: rgba(30, 30, 40, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .title-font {
+            font-family: 'Zhi Mang Xing', cursive;
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #9D81BA, #FFC1CC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .btn-aesthetic {
+            background: linear-gradient(135deg, #9D81BA, #F7C6C7);
+            transition: all 0.3s ease;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #9D81BA44; border-radius: 10px; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+    "framer-motion": "https://esm.sh/framer-motion@^11.11.11"
+  }
+}
+</script>
+</head>
+<body class="bg-[#fdfcfb] text-[#4a4a4a]">
+    <div id="root"></div>
+</body>
+</html>
