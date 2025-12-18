@@ -5,21 +5,34 @@ import { Sparkles, Loader2, Flower2, AlertCircle, ChevronDown, ChevronUp } from 
 import PromptInput from './PromptInput';
 import StyleSettings from './StyleSettings';
 import KeywordSelector from './KeywordSelector';
+import ImageKeywordSelector from './ImageKeywordSelector';
 import { useApp } from '../store/AppContext';
 import { api } from '../services/api';
 import { HistoryItem, ApiResponse, DanmeiContent } from '../types';
 
 const GenerationPanel: React.FC = () => {
   const { state, dispatch } = useApp();
-  const { activeType, activeStyle, prompt, keywords, loading } = state;
+  const { activeType, activeStyle, prompt, keywords, imageKeywords, loading } = state;
   const [error, setError] = React.useState<string | null>(null);
   const [showKeywords, setShowKeywords] = React.useState(true);
 
   const handleCreate = async () => {
-    // For text writing, if no prompt, we allow it if keywords are selected
+    // 性能优化：由于 PromptInput 状态局部化，这里实际上会使用全局 Context 中的 prompt。
+    // 在 PromptInput 失去焦点时已经完成了同步，所以这里可以直接使用。
+
+    // Validation
     if (activeType === 'writing') {
       const hasKeywords = Object.values(keywords).some(v => v !== undefined);
-      if (!prompt && !hasKeywords) return;
+      if (!prompt && !hasKeywords) {
+        setError("请至少输入剧情描述或选择关键词");
+        return;
+      }
+    } else if (activeType === 'drawing') {
+      const hasImageKeywords = Object.values(imageKeywords).some(v => v !== undefined);
+      if (!prompt && !hasImageKeywords) {
+        setError("请描述画面或选择视觉参数");
+        return;
+      }
     } else {
       if (!prompt && activeType !== 'inspiration') return;
     }
@@ -34,7 +47,7 @@ const GenerationPanel: React.FC = () => {
       if (activeType === 'writing') {
         response = await api.generateText(prompt, activeStyle, keywords);
       } else if (activeType === 'drawing') {
-        response = await api.generateImage(prompt);
+        response = await api.generateImage(prompt, imageKeywords);
       } else {
         response = await api.generateInspiration();
       }
@@ -48,6 +61,7 @@ const GenerationPanel: React.FC = () => {
           style: activeType === 'writing' ? activeStyle : undefined,
           prompt: prompt,
           keywords: activeType === 'writing' ? keywords : undefined,
+          imageKeywords: activeType === 'drawing' ? imageKeywords : undefined,
           content: response.data,
           timestamp: Date.now()
         };
@@ -83,7 +97,8 @@ const GenerationPanel: React.FC = () => {
                  activeType === 'drawing' ? '描摹惊鸿一瞥' : '求取灵感馈赠'}
               </h3>
               <p className="text-sm text-gray-400 dark:text-gray-500">
-                {activeType === 'writing' ? '选择关键词或描述你心之所向的情节...' : '描述你心之所向的画面或情感...'}
+                {activeType === 'writing' ? '选择关键词或描述你心之所向的情节...' : 
+                 activeType === 'drawing' ? '选择视觉参数或描述你心之所向的画面...' : '描述你心之所向的情感...'}
               </p>
             </div>
             {activeType === 'writing' && (
@@ -94,13 +109,13 @@ const GenerationPanel: React.FC = () => {
             )}
           </div>
 
-          {activeType === 'writing' && (
+          {(activeType === 'writing' || activeType === 'drawing') && (
             <div className="space-y-6">
               <button 
                 onClick={() => setShowKeywords(!showKeywords)}
-                className="flex items-center gap-2 text-xs font-bold text-purple-400/80 hover:text-purple-400 transition-colors uppercase tracking-widest"
+                className={`flex items-center gap-2 text-xs font-bold transition-colors uppercase tracking-widest ${activeType === 'writing' ? 'text-purple-400' : 'text-blue-400'}`}
               >
-                <span>人设与情节关键词</span>
+                <span>{activeType === 'writing' ? '人设与情节关键词' : '视觉与美学参数'}</span>
                 {showKeywords ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </button>
               
@@ -112,7 +127,7 @@ const GenerationPanel: React.FC = () => {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <KeywordSelector />
+                    {activeType === 'writing' ? <KeywordSelector /> : <ImageKeywordSelector />}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -145,7 +160,7 @@ const GenerationPanel: React.FC = () => {
 
           <button
             onClick={handleCreate}
-            disabled={loading || (activeType !== 'inspiration' && activeType !== 'writing' && !prompt)}
+            disabled={loading || (activeType !== 'inspiration' && activeType !== 'writing' && activeType !== 'drawing' && !prompt)}
             className={`w-full py-5 rounded-[32px] flex items-center justify-center gap-3 text-white font-bold text-lg shadow-xl btn-aesthetic transition-all transform hover:scale-[1.01] active:scale-95 ${
               loading ? 'opacity-70 grayscale' : ''
             }`}
@@ -159,4 +174,4 @@ const GenerationPanel: React.FC = () => {
   );
 };
 
-export default GenerationPanel;
+export default React.memo(GenerationPanel);

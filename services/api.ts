@@ -6,7 +6,8 @@ import {
   DanmeiStyle, 
   HistoryItem, 
   CollectionItem,
-  DanmeiKeywords
+  DanmeiKeywords,
+  DanmeiImageKeywords
 } from '../types';
 
 /**
@@ -41,9 +42,9 @@ export const api = {
   /**
    * POST /api/generate/image
    */
-  async generateImage(prompt: string): Promise<ApiResponse<DanmeiContent>> {
+  async generateImage(prompt: string, keywords?: DanmeiImageKeywords): Promise<ApiResponse<DanmeiContent>> {
     try {
-      const imageUrl = await huaYunPaint(prompt);
+      const imageUrl = await huaYunPaint(prompt, keywords);
       return createResponse({ imageUrl, description: prompt });
     } catch (e) {
       return handleError(e);

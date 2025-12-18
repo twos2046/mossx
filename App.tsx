@@ -2,8 +2,7 @@
 import React from 'react';
 import { 
   Moon, 
-  Sun, 
-  Flower2
+  Sun
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -23,24 +22,24 @@ const AppContent: React.FC = () => {
 
   return (
     <div className={`min-h-screen transition-colors duration-700 ${theme === 'dark' ? 'bg-[#0f0f15]' : 'bg-[#fdfcfb]'}`}>
-      {/* Dynamic Background */}
-      <div className="fixed inset-0 pointer-events-none opacity-30">
+      {/* 性能优化：动态背景使用 will-change 开启硬件加速，降低模糊程度提升性能 */}
+      <div className="fixed inset-0 pointer-events-none opacity-30 overflow-hidden">
         <motion.div 
-          animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }}
-          transition={{ duration: 30, repeat: Infinity }}
-          className="absolute -top-1/4 -left-1/4 w-[80vw] h-[80vw] rounded-full bg-gradient-to-br from-purple-100/50 to-transparent blur-3xl dark:from-purple-900/20" 
+          animate={{ scale: [1, 1.1, 1], rotate: [0, 90, 0], x: [0, 50, 0], y: [0, 20, 0] }}
+          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+          className="absolute -top-1/4 -left-1/4 w-[80vw] h-[80vw] rounded-full bg-gradient-to-br from-purple-100/50 to-transparent blur-[80px] dark:from-purple-900/20 will-change-transform" 
         />
         <motion.div 
-          animate={{ scale: [1, 1.3, 1], rotate: [0, -45, 0] }}
-          transition={{ duration: 20, repeat: Infinity, delay: 2 }}
-          className="absolute top-1/2 -right-1/4 w-[60vw] h-[60vw] rounded-full bg-gradient-to-br from-pink-100/40 to-transparent blur-3xl dark:from-pink-900/10" 
+          animate={{ scale: [1, 1.2, 1], rotate: [0, -45, 0], x: [0, -30, 0], y: [0, -40, 0] }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear", delay: 2 }}
+          className="absolute top-1/2 -right-1/4 w-[60vw] h-[60vw] rounded-full bg-gradient-to-br from-pink-100/40 to-transparent blur-[80px] dark:from-pink-900/10 will-change-transform" 
         />
       </div>
 
       <header className="pt-12 pb-16 text-center relative px-4">
         <button 
           onClick={toggleTheme}
-          className="absolute top-8 right-8 p-3 glass rounded-full hover:shadow-xl transition-all"
+          className="absolute top-8 right-8 p-3 glass rounded-full hover:shadow-xl transition-all z-20"
         >
           {theme === 'light' ? <Moon className="text-gray-500" size={20} /> : <Sun className="text-yellow-400" size={20} />}
         </button>
@@ -55,7 +54,7 @@ const AppContent: React.FC = () => {
         </motion.div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 pb-32">
+      <main className="max-w-5xl mx-auto px-6 pb-32 relative z-10">
         <CharacterSelector 
           activeId={activeType} 
           onSelect={(id) => dispatch({ type: 'SET_TYPE', payload: id })} 

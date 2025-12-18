@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { DanmeiStyle, DanmeiContent, DanmeiKeywords } from "../types";
+import { DanmeiStyle, DanmeiContent, DanmeiKeywords, DanmeiImageKeywords } from "../types";
 
 // Always use process.env.API_KEY directly for initialization
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -60,12 +60,24 @@ export async function wenMoWrite(topic: string, style: DanmeiStyle, keywords?: D
   return JSON.parse(response.text);
 }
 
-export async function huaYunPaint(promptText: string): Promise<string> {
+export async function huaYunPaint(promptText: string, keywords?: DanmeiImageKeywords): Promise<string> {
+  const visualDescription = `
+    Aesthetic Danmei style illustration.
+    Characters: Seme traits (${keywords?.semeFeature || 'elegant'}), Uke traits (${keywords?.ukeFeature || 'beautiful'}). 
+    Composition: ${keywords?.composition || 'dynamic interactive pose'}, ${keywords?.lighting || 'soft cinematic lighting'}.
+    Colors: Main palette is ${keywords?.colorScheme || 'lavender and mint'}. 
+    Environment: ${keywords?.scene || 'dreamy setting'}, ${keywords?.timeOfDay || 'golden hour'}.
+    Atmosphere: ${keywords?.atmosphere || 'romantic and dreamy'}.
+    Elements: ${keywords?.elements || 'drifting petals, soft sparkles'}.
+    Context: ${promptText}.
+    Style: Masterpiece, high detail, elegant line art, soft coloring, emotional gaze, anime aesthetic.
+  `;
+
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash-image',
     contents: {
       parts: [
-        { text: `Aesthetic Danmei style illustration: ${promptText}. soft lighting, dreamy atmosphere, elegant characters, high detail, masterpiece, lavender and mint color palette.` }
+        { text: visualDescription }
       ]
     },
     config: {

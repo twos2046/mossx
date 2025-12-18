@@ -12,6 +12,18 @@ export interface DanmeiKeywords {
   length?: string;
 }
 
+export interface DanmeiImageKeywords {
+  semeFeature?: string;
+  ukeFeature?: string;
+  composition?: string;
+  lighting?: string;
+  colorScheme?: string;
+  atmosphere?: string;
+  scene?: string;
+  timeOfDay?: string;
+  elements?: string;
+}
+
 export interface DanmeiContent {
   title?: string;
   body?: string;
@@ -28,6 +40,7 @@ export interface HistoryItem {
   style?: DanmeiStyle;
   prompt: string;
   keywords?: DanmeiKeywords;
+  imageKeywords?: DanmeiImageKeywords;
   content: DanmeiContent;
   timestamp: number;
 }
@@ -49,6 +62,7 @@ export interface AppState {
   activeStyle: DanmeiStyle;
   prompt: string;
   keywords: DanmeiKeywords;
+  imageKeywords: DanmeiImageKeywords;
   loading: boolean;
   result: DanmeiContent | null;
   history: HistoryItem[];

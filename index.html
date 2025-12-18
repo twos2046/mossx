@@ -5,7 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>墨色生香 - 唯美耽美创作站</title>
+    <!-- 性能优化：预连接字体服务 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 性能优化：显式指定 font-display: swap -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -16,10 +21,13 @@
         body {
             font-family: 'Noto Serif SC', serif;
             transition: background-color 0.5s ease, color 0.5s ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         .glass {
             background: rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px); /* Safari 适配 */
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         .dark .glass {
@@ -37,6 +45,10 @@
         .btn-aesthetic {
             background: linear-gradient(135deg, #9D81BA, #F7C6C7);
             transition: all 0.3s ease;
+        }
+        /* 性能优化：开启硬件加速的动画 */
+        .will-change-transform {
+            will-change: transform;
         }
         /* Custom scrollbar */
         ::-webkit-scrollbar { width: 6px; }

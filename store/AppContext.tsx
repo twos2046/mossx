@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { AppState, CreationType, DanmeiStyle, Theme, HistoryItem, DanmeiContent, CollectionItem, DanmeiKeywords } from '../types';
+import { AppState, CreationType, DanmeiStyle, Theme, HistoryItem, DanmeiContent, CollectionItem, DanmeiKeywords, DanmeiImageKeywords } from '../types';
 
 type Action =
   | { type: 'SET_THEME'; payload: Theme }
@@ -8,6 +8,7 @@ type Action =
   | { type: 'SET_STYLE'; payload: DanmeiStyle }
   | { type: 'SET_PROMPT'; payload: string }
   | { type: 'SET_KEYWORDS'; payload: Partial<DanmeiKeywords> }
+  | { type: 'SET_IMAGE_KEYWORDS'; payload: Partial<DanmeiImageKeywords> }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_RESULT'; payload: DanmeiContent | null }
   | { type: 'ADD_HISTORY'; payload: HistoryItem }
@@ -21,6 +22,7 @@ const initialState: AppState = {
   activeStyle: 'ancient',
   prompt: '',
   keywords: {},
+  imageKeywords: {},
   loading: false,
   result: null,
   history: [],
@@ -37,13 +39,15 @@ function appReducer(state: AppState, action: Action): AppState {
     case 'SET_THEME':
       return { ...state, theme: action.payload };
     case 'SET_TYPE':
-      return { ...state, activeType: action.payload, result: null, prompt: '', keywords: {} };
+      return { ...state, activeType: action.payload, result: null, prompt: '', keywords: {}, imageKeywords: {} };
     case 'SET_STYLE':
       return { ...state, activeStyle: action.payload };
     case 'SET_PROMPT':
       return { ...state, prompt: action.payload };
     case 'SET_KEYWORDS':
       return { ...state, keywords: { ...state.keywords, ...action.payload } };
+    case 'SET_IMAGE_KEYWORDS':
+      return { ...state, imageKeywords: { ...state.imageKeywords, ...action.payload } };
     case 'SET_LOADING':
       return { ...state, loading: action.payload };
     case 'SET_RESULT':
@@ -75,7 +79,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           theme: parsed.theme || 'light',
           activeStyle: parsed.activeStyle || 'ancient',
           activeType: parsed.activeType || 'writing',
-          keywords: parsed.keywords || {}
+          keywords: parsed.keywords || {},
+          imageKeywords: parsed.imageKeywords || {}
         }});
       } catch (e) {}
     }
@@ -88,10 +93,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       theme: state.theme,
       activeStyle: state.activeStyle,
       activeType: state.activeType,
-      keywords: state.keywords
+      keywords: state.keywords,
+      imageKeywords: state.imageKeywords
     }));
     document.documentElement.classList.toggle('dark', state.theme === 'dark');
-  }, [state.history, state.collections, state.theme, state.activeStyle, state.activeType, state.keywords]);
+  }, [state.history, state.collections, state.theme, state.activeStyle, state.activeType, state.keywords, state.imageKeywords]);
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>
