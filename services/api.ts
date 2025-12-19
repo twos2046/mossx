@@ -81,20 +81,30 @@ export const api = {
 
   /**
    * POST /api/user/favorite
+   * 完善收藏逻辑：增加 10 条收藏上限限制
    */
   async toggleFavorite(item: HistoryItem): Promise<ApiResponse<CollectionItem[]>> {
     try {
       const saved = localStorage.getItem('danmei_app_state');
       let collections: CollectionItem[] = [];
       if (saved) {
-        collections = JSON.parse(saved).collections || [];
+        try {
+          collections = JSON.parse(saved).collections || [];
+        } catch (e) {
+          collections = [];
+        }
       }
 
       const index = collections.findIndex(c => c.id === item.id);
       if (index > -1) {
+        // 如果已存在，则取消收藏
         collections.splice(index, 1);
       } else {
+        // 如果不存在，则添加收藏并保持在 10 条以内
         collections.unshift({ ...item, collectedAt: Date.now() });
+        if (collections.length > 10) {
+          collections = collections.slice(0, 10);
+        }
       }
 
       return createResponse(collections);

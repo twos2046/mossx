@@ -98,11 +98,17 @@ const ResultDisplay: React.FC<Props> = ({ type, item }) => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 p-12 flex flex-col justify-end">
              <p className="text-white/90 text-sm mb-6 italic leading-relaxed">“{content.description}”</p>
              <div className="flex gap-3">
-               <button onClick={toggleFavorite} className={`flex-1 py-4 backdrop-blur-xl rounded-full font-bold transition-all flex items-center justify-center gap-3 ${isCollected ? 'bg-pink-500 text-white' : 'bg-white/20 text-white hover:bg-white/40'}`}>
-                 <Star size={20} fill={isCollected ? 'white' : 'none'} /> {isCollected ? '已收藏' : '收藏此卷'}
+               <button 
+                 onClick={toggleFavorite} 
+                 className={`flex-1 py-4 backdrop-blur-xl rounded-full font-bold transition-all flex items-center justify-center gap-3 ${
+                   isCollected ? 'bg-pink-500 text-white shadow-lg' : 'bg-white/20 text-white hover:bg-white/40'
+                 }`}
+               >
+                 <Star size={20} fill={isCollected ? 'white' : 'none'} /> 
+                 {isCollected ? '已存入画轴' : '收藏此卷'}
                </button>
                <a href={content.imageUrl} download="huayun_masterpiece.png" className="flex-1 py-4 bg-white/20 backdrop-blur-xl rounded-full text-white text-center font-bold hover:bg-white/40 transition-all flex items-center justify-center gap-3">
-                 <Download size={20} /> 收入画轴
+                 <Download size={20} /> 保存至本地
                </a>
              </div>
           </div>
