@@ -64,8 +64,8 @@ const ImageKeywordSelector: React.FC = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
       {(Object.entries(imageKeywordData) as [keyof DanmeiImageKeywords, any][]).map(([key, data]) => (
         <div key={key} className="space-y-4">
-          <div className="flex items-center gap-2 text-lg font-bold text-blue-400 dark:text-blue-300 uppercase tracking-widest">
-            <data.icon size={20} />
+          <div className="flex items-center gap-2 text-lg font-black text-blue-800 dark:text-blue-300 uppercase tracking-widest">
+            <data.icon size={20} className="stroke-[3]" />
             <span>{data.label}</span>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -77,10 +77,10 @@ const ImageKeywordSelector: React.FC = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => toggleKeyword(key, opt)}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all ${
+                  className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
                     isActive
-                      ? 'bg-blue-500 text-white border-transparent shadow-md'
-                      : 'bg-white/50 dark:bg-white/5 text-gray-500 dark:text-gray-400 border-white/40 dark:border-white/10 hover:border-blue-300'
+                      ? 'bg-blue-700 text-white border-transparent shadow-md'
+                      : 'bg-white/60 dark:bg-white/10 text-gray-800 dark:text-gray-200 border-blue-200 dark:border-blue-900/50 hover:border-blue-500'
                   }`}
                 >
                   {opt}

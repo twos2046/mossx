@@ -17,9 +17,6 @@ const GenerationPanel: React.FC = () => {
   const [showKeywords, setShowKeywords] = React.useState(true);
 
   const handleCreate = async () => {
-    // 性能优化：由于 PromptInput 状态局部化，这里实际上会使用全局 Context 中的 prompt。
-    // 在 PromptInput 失去焦点时已经完成了同步，所以这里可以直接使用。
-
     // Validation
     if (activeType === 'writing') {
       const hasKeywords = Object.values(keywords).some(v => v !== undefined);
@@ -113,10 +110,10 @@ const GenerationPanel: React.FC = () => {
             <div className="space-y-6">
               <button 
                 onClick={() => setShowKeywords(!showKeywords)}
-                className={`flex items-center gap-2 text-sm font-bold transition-colors uppercase tracking-widest ${activeType === 'writing' ? 'text-purple-400' : 'text-blue-400'}`}
+                className={`flex items-center gap-2 text-sm font-black transition-colors uppercase tracking-widest ${activeType === 'writing' ? 'text-purple-700 dark:text-purple-400' : 'text-blue-700 dark:text-blue-400'}`}
               >
                 <span>{activeType === 'writing' ? '人设与情节关键词' : '视觉与美学参数'}</span>
-                {showKeywords ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                {showKeywords ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
               </button>
               
               <AnimatePresence>
@@ -136,7 +133,7 @@ const GenerationPanel: React.FC = () => {
 
           {activeType !== 'inspiration' && (
             <div className="space-y-4">
-              <div className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold">
+              <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest font-black">
                 {activeType === 'writing' ? '剧情补充描述 (可选)' : '提示词输入'}
               </div>
               <PromptInput 

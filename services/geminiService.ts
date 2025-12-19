@@ -37,8 +37,9 @@ export async function wenMoWrite(topic: string, style: DanmeiStyle, keywords?: D
   4. 3个引人入胜的剧情钩子
   5. 相关的人设与氛围标签`;
 
+  // 使用 Gemini 3 Flash 模型进行文本生成
   const response = await ai.models.generateContent({
-    model: "gemini-3-pro-preview",
+    model: "gemini-3-flash-preview",
     contents: prompt,
     config: {
       systemInstruction,
@@ -73,6 +74,8 @@ export async function huaYunPaint(promptText: string, keywords?: DanmeiImageKeyw
     Style: Masterpiece, high detail, elegant line art, soft coloring, emotional gaze, anime aesthetic.
   `;
 
+  // 使用 Nano Banana 模型 (gemini-2.5-flash-image) 进行图像生成
+  // 根据准则，Nano Banana 系列不支持 responseMimeType 和 responseSchema
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash-image',
     contents: {
@@ -81,10 +84,13 @@ export async function huaYunPaint(promptText: string, keywords?: DanmeiImageKeyw
       ]
     },
     config: {
-      imageConfig: { aspectRatio: "3:4" }
+      imageConfig: {
+        aspectRatio: "3:4"
+      }
     }
   });
 
+  // 遍历响应部分以找到图像数据
   for (const part of response.candidates[0].content.parts) {
     if (part.inlineData) {
       return `data:image/png;base64,${part.inlineData.data}`;
