@@ -92,11 +92,11 @@ const GenerationPanel: React.FC = () => {
         >
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold text-gray-700 dark:text-gray-200">
+              <h3 className="text-3xl font-bold text-gray-700 dark:text-gray-200">
                 {activeType === 'writing' ? '开启一段尘缘' : 
                  activeType === 'drawing' ? '描摹惊鸿一瞥' : '求取灵感馈赠'}
               </h3>
-              <p className="text-sm text-gray-400 dark:text-gray-500">
+              <p className="text-base text-gray-400 dark:text-gray-500">
                 {activeType === 'writing' ? '选择关键词或描述你心之所向的情节...' : 
                  activeType === 'drawing' ? '选择视觉参数或描述你心之所向的画面...' : '描述你心之所向的情感...'}
               </p>
@@ -113,7 +113,7 @@ const GenerationPanel: React.FC = () => {
             <div className="space-y-6">
               <button 
                 onClick={() => setShowKeywords(!showKeywords)}
-                className={`flex items-center gap-2 text-xs font-bold transition-colors uppercase tracking-widest ${activeType === 'writing' ? 'text-purple-400' : 'text-blue-400'}`}
+                className={`flex items-center gap-2 text-sm font-bold transition-colors uppercase tracking-widest ${activeType === 'writing' ? 'text-purple-400' : 'text-blue-400'}`}
               >
                 <span>{activeType === 'writing' ? '人设与情节关键词' : '视觉与美学参数'}</span>
                 {showKeywords ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -136,7 +136,7 @@ const GenerationPanel: React.FC = () => {
 
           {activeType !== 'inspiration' && (
             <div className="space-y-4">
-              <div className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold">
+              <div className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold">
                 {activeType === 'writing' ? '剧情补充描述 (可选)' : '提示词输入'}
               </div>
               <PromptInput 

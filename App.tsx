@@ -32,7 +32,7 @@ const AppContent: React.FC = () => {
         <motion.div 
           animate={{ scale: [1, 1.2, 1], rotate: [0, -45, 0], x: [0, -30, 0], y: [0, -40, 0] }}
           transition={{ duration: 30, repeat: Infinity, ease: "linear", delay: 2 }}
-          className="absolute top-1/2 -right-1/4 w-[60vw] h-[60vw] rounded-full bg-gradient-to-br from-pink-100/40 to-transparent blur-[80px] dark:from-pink-900/10 will-change-transform" 
+          className="absolute top-1/2 -right-1/4 w-[60vw] h-[60vw] rounded-full bg-gradient-to-br from-pink-100/40 to-transparent blur-[80px] dark:from-pink-900/10 Scenic will-change-transform" 
         />
       </div>
 
@@ -50,7 +50,7 @@ const AppContent: React.FC = () => {
           transition={{ duration: 1 }}
         >
           <h1 className="text-7xl md:text-8xl title-font gradient-text mb-4 drop-shadow-sm">墨色生香</h1>
-          <p className="text-xs md:text-sm text-gray-400 dark:text-gray-500 tracking-[0.5em] font-light uppercase">凡所见皆为幻影 · 凡所书皆为心声</p>
+          <p className="text-sm md:text-base text-gray-400 dark:text-gray-500 tracking-[0.5em] font-light uppercase">凡所见皆为幻影 · 凡所书皆为心声</p>
         </motion.div>
       </header>
 
@@ -94,10 +94,13 @@ const AppContent: React.FC = () => {
   );
 };
 
-const App: React.FC = () => (
-  <AppProvider>
-    <AppContent />
-  </AppProvider>
-);
+// Fixed: Updated App component to use a standard return block which often resolves ambiguous type errors in React 18+ environments
+const App: React.FC = () => {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
+  );
+};
 
 export default App;

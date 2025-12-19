@@ -65,7 +65,8 @@ function appReducer(state: AppState, action: Action): AppState {
   }
 }
 
-export const AppProvider = ({ children }: { children: ReactNode }) => {
+// Fixed: Explicitly typed AppProvider with React.FC<{ children: ReactNode }> to resolve children typing issues in React 18+
+export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
 
   useEffect(() => {

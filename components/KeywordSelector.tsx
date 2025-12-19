@@ -54,8 +54,8 @@ const KeywordSelector: React.FC = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
       {(Object.entries(keywordData) as [keyof DanmeiKeywords, any][]).map(([key, data]) => (
         <div key={key} className="space-y-4">
-          <div className="flex items-center gap-2 text-xs font-bold text-purple-400 uppercase tracking-widest">
-            <data.icon size={14} />
+          <div className="flex items-center gap-2 text-lg font-bold text-purple-400 uppercase tracking-widest">
+            <data.icon size={20} />
             <span>{data.label}</span>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -67,7 +67,7 @@ const KeywordSelector: React.FC = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => toggleKeyword(key, opt)}
-                  className={`px-3 py-1.5 rounded-xl text-[11px] font-medium border transition-all ${
+                  className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all ${
                     isActive
                       ? 'bg-purple-500 text-white border-transparent shadow-md'
                       : 'bg-white/50 dark:bg-white/5 text-gray-500 dark:text-gray-400 border-white/40 dark:border-white/10 hover:border-purple-300'

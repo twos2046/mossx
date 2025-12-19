@@ -46,10 +46,10 @@ const CharacterSelector: React.FC<Props> = ({ activeId, onSelect }) => {
             />
           )}
           <char.icon size={32} className={`mb-3 transition-colors ${activeId === char.id ? char.color : 'text-gray-400'}`} />
-          <span className={`text-sm font-bold tracking-widest ${activeId === char.id ? 'text-gray-800 dark:text-gray-100' : 'text-gray-500'}`}>
+          <span className={`text-base font-bold tracking-widest ${activeId === char.id ? 'text-gray-800 dark:text-gray-100' : 'text-gray-500'}`}>
             {char.name}
           </span>
-          <span className="text-[10px] mt-1 opacity-50 uppercase tracking-tighter">
+          <span className="text-xs mt-1 opacity-50 uppercase tracking-tighter">
             {char.persona} · {char.id === 'inspiration' ? '精灵团' : '助手'}
           </span>
         </motion.button>
