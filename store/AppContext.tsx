@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { AppState, CreationType, DanmeiStyle, Theme, HistoryItem, DanmeiContent, CollectionItem, DanmeiKeywords, DanmeiImageKeywords } from '../types';
+import { AppState, CreationType, DanmeiStyle, Theme, HistoryItem, CollectionItem, DanmeiKeywords, DanmeiImageKeywords } from '../types';
 
 type Action =
   | { type: 'SET_THEME'; payload: Theme }
@@ -10,7 +10,7 @@ type Action =
   | { type: 'SET_KEYWORDS'; payload: Partial<DanmeiKeywords> }
   | { type: 'SET_IMAGE_KEYWORDS'; payload: Partial<DanmeiImageKeywords> }
   | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_RESULT'; payload: DanmeiContent | null }
+  | { type: 'SET_RESULT'; payload: HistoryItem | null }
   | { type: 'ADD_HISTORY'; payload: HistoryItem }
   | { type: 'DELETE_HISTORY'; payload: string }
   | { type: 'SET_COLLECTIONS'; payload: CollectionItem[] }
@@ -39,7 +39,14 @@ function appReducer(state: AppState, action: Action): AppState {
     case 'SET_THEME':
       return { ...state, theme: action.payload };
     case 'SET_TYPE':
-      return { ...state, activeType: action.payload, result: null, prompt: '', keywords: {}, imageKeywords: {} };
+      return { 
+        ...state, 
+        activeType: action.payload, 
+        result: null, 
+        prompt: '', 
+        keywords: {}, 
+        imageKeywords: {} 
+      };
     case 'SET_STYLE':
       return { ...state, activeStyle: action.payload };
     case 'SET_PROMPT':
@@ -53,9 +60,16 @@ function appReducer(state: AppState, action: Action): AppState {
     case 'SET_RESULT':
       return { ...state, result: action.payload };
     case 'ADD_HISTORY':
-      return { ...state, history: [action.payload, ...state.history].slice(0, 20) };
+      // 保持历史记录最多为 10 条
+      return { 
+        ...state, 
+        history: [action.payload, ...state.history].slice(0, 10) 
+      };
     case 'DELETE_HISTORY':
-      return { ...state, history: state.history.filter(i => i.id !== action.payload) };
+      return { 
+        ...state, 
+        history: state.history.filter(i => i.id !== action.payload) 
+      };
     case 'SET_COLLECTIONS':
       return { ...state, collections: action.payload };
     case 'LOAD_STORAGE':
@@ -65,28 +79,34 @@ function appReducer(state: AppState, action: Action): AppState {
   }
 }
 
-// Fixed: Explicitly typed AppProvider with React.FC<{ children: ReactNode }> to resolve children typing issues in React 18+
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
 
+  // 初始化加载
   useEffect(() => {
     const saved = localStorage.getItem('danmei_app_state');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        dispatch({ type: 'LOAD_STORAGE', payload: {
-          history: parsed.history || [],
-          collections: parsed.collections || [],
-          theme: parsed.theme || 'light',
-          activeStyle: parsed.activeStyle || 'ancient',
-          activeType: parsed.activeType || 'writing',
-          keywords: parsed.keywords || {},
-          imageKeywords: parsed.imageKeywords || {}
-        }});
-      } catch (e) {}
+        dispatch({ 
+          type: 'LOAD_STORAGE', 
+          payload: {
+            history: (parsed.history || []).slice(0, 10),
+            collections: parsed.collections || [],
+            theme: parsed.theme || 'light',
+            activeStyle: parsed.activeStyle || 'ancient',
+            activeType: parsed.activeType || 'writing',
+            keywords: parsed.keywords || {},
+            imageKeywords: parsed.imageKeywords || {}
+          }
+        });
+      } catch (e) {
+        console.error("Failed to load state:", e);
+      }
     }
   }, []);
 
+  // 状态同步到本地存储
   useEffect(() => {
     localStorage.setItem('danmei_app_state', JSON.stringify({
       history: state.history,
@@ -98,7 +118,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       imageKeywords: state.imageKeywords
     }));
     document.documentElement.classList.toggle('dark', state.theme === 'dark');
-  }, [state.history, state.collections, state.theme, state.activeStyle, state.activeType, state.keywords, state.imageKeywords]);
+  }, [
+    state.history, 
+    state.collections, 
+    state.theme, 
+    state.activeStyle, 
+    state.activeType, 
+    state.keywords, 
+    state.imageKeywords
+  ]);
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>

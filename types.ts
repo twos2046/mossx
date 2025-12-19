@@ -64,7 +64,7 @@ export interface AppState {
   keywords: DanmeiKeywords;
   imageKeywords: DanmeiImageKeywords;
   loading: boolean;
-  result: DanmeiContent | null;
+  result: HistoryItem | null;
   history: HistoryItem[];
   collections: CollectionItem[];
 }

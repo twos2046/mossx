@@ -22,7 +22,6 @@ const AppContent: React.FC = () => {
 
   return (
     <div className={`min-h-screen transition-colors duration-700 ${theme === 'dark' ? 'bg-[#0f0f15]' : 'bg-[#fdfcfb]'}`}>
-      {/* 性能优化：动态背景使用 will-change 开启硬件加速，降低模糊程度提升性能 */}
       <div className="fixed inset-0 pointer-events-none opacity-30 overflow-hidden">
         <motion.div 
           animate={{ scale: [1, 1.1, 1], rotate: [0, 90, 0], x: [0, 50, 0], y: [0, 20, 0] }}
@@ -65,9 +64,9 @@ const AppContent: React.FC = () => {
         <AnimatePresence mode="wait">
           {result && (
             <ResultDisplay 
-              key={result.imageUrl || result.body || 'result'}
+              key={result.id}
               type={activeType} 
-              content={result} 
+              item={result} 
             />
           )}
         </AnimatePresence>
@@ -80,7 +79,7 @@ const AppContent: React.FC = () => {
             dispatch({ type: 'SET_TYPE', payload: item.type });
             if (item.style) dispatch({ type: 'SET_STYLE', payload: item.style });
             dispatch({ type: 'SET_PROMPT', payload: item.prompt });
-            dispatch({ type: 'SET_RESULT', payload: item.content });
+            dispatch({ type: 'SET_RESULT', payload: item });
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }} 
           onDelete={(id) => dispatch({ type: 'DELETE_HISTORY', payload: id })} 
@@ -94,7 +93,6 @@ const AppContent: React.FC = () => {
   );
 };
 
-// Fixed: Updated App component to use a standard return block which often resolves ambiguous type errors in React 18+ environments
 const App: React.FC = () => {
   return (
     <AppProvider>

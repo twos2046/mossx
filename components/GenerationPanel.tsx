@@ -50,8 +50,6 @@ const GenerationPanel: React.FC = () => {
       }
 
       if (response.success && response.data) {
-        dispatch({ type: 'SET_RESULT', payload: response.data });
-        
         const newItem: HistoryItem = {
           id: Date.now().toString(),
           type: activeType,
@@ -62,6 +60,9 @@ const GenerationPanel: React.FC = () => {
           content: response.data,
           timestamp: Date.now()
         };
+        
+        // 先设置结果，再添加到历史，确保 ID 一致性
+        dispatch({ type: 'SET_RESULT', payload: newItem });
         dispatch({ type: 'ADD_HISTORY', payload: newItem });
       } else {
         setError(response.error || "创作之路受阻，请稍后再试");
@@ -133,7 +134,7 @@ const GenerationPanel: React.FC = () => {
 
           {activeType !== 'inspiration' && (
             <div className="space-y-4">
-              <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest font-black">
+              <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest font-black font-bold">
                 {activeType === 'writing' ? '剧情补充描述 (可选)' : '提示词输入'}
               </div>
               <PromptInput 

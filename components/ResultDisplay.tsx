@@ -2,23 +2,21 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Copy, Download, Heart, Info, ChevronRight, Check, Star } from 'lucide-react';
-import { DanmeiContent, CreationType, HistoryItem } from '../types';
+import { CreationType, HistoryItem } from '../types';
 import { useApp } from '../store/AppContext';
 import { api } from '../services/api';
 
 interface Props {
   type: CreationType;
-  content: DanmeiContent;
+  item: HistoryItem; // 改为接收整个 HistoryItem
 }
 
-const ResultDisplay: React.FC<Props> = ({ type, content }) => {
+const ResultDisplay: React.FC<Props> = ({ type, item }) => {
   const { state, dispatch } = useApp();
   const [copied, setCopied] = useState(false);
+  const { content } = item;
 
-  const isCollected = state.collections.some(c => 
-    (c.content.body === content.body && c.content.title === content.title) || 
-    (c.content.imageUrl === content.imageUrl && content.imageUrl)
-  );
+  const isCollected = state.collections.some(c => c.id === item.id);
 
   const onCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -27,16 +25,7 @@ const ResultDisplay: React.FC<Props> = ({ type, content }) => {
   };
 
   const toggleFavorite = async () => {
-    const tempItem: HistoryItem = {
-      id: content.imageUrl || content.body || Date.now().toString(),
-      type,
-      prompt: state.prompt,
-      content,
-      timestamp: Date.now()
-    };
-    
-    // Call the "API" to toggle favorite
-    const response = await api.toggleFavorite(tempItem);
+    const response = await api.toggleFavorite(item);
     if (response.success && response.data) {
       dispatch({ type: 'SET_COLLECTIONS', payload: response.data });
     }
