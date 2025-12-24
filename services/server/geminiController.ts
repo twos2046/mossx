@@ -1,11 +1,19 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
-import { DanmeiStyle, DanmeiContent, DanmeiKeywords, DanmeiImageKeywords } from "../types";
+import type { DanmeiContent, DanmeiImageKeywords, DanmeiKeywords, DanmeiStyle } from "../../types.js";
 
-// Always use process.env.API_KEY directly for initialization
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-export async function wenMoWrite(topic: string, style: DanmeiStyle, keywords?: DanmeiKeywords): Promise<DanmeiContent> {
+if (!GEMINI_API_KEY) {
+  throw new Error("GEMINI_API_KEY is not configured on the server");
+}
+
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+
+export async function wenMoWrite(
+  topic: string,
+  style: DanmeiStyle,
+  keywords?: DanmeiKeywords
+): Promise<DanmeiContent> {
   const systemInstruction = `你是耽美文学创作专家【文墨】，一位优雅的银发紫眸AI耽美作家。你擅长创作辞藻优美、情感张力极强的耽美文学。
   
   请根据用户提供的关键词组合生成符合耽美美学的高质量文本内容。
@@ -18,17 +26,17 @@ export async function wenMoWrite(topic: string, style: DanmeiStyle, keywords?: D
   
   返回格式：JSON。`;
 
-  let prompt = `请创作一篇耽美文学作品。
-  主题：${topic || '未指定主题，请自由发挥美学想象'}
+  const prompt = `请创作一篇耽美文学作品。
+  主题：${topic || "未指定主题，请自由发挥美学想象"}
   风格偏好：${style}
   
   【具体参数设定】
-  攻方设定：${keywords?.seme || '默认强攻'}
-  受方设定：${keywords?.uke || '默认美人受'}
-  时代背景：${keywords?.era || '默认都市'}
-  关系设定：${keywords?.relationship || '默认宿命牵绊'}
-  主要情节：${keywords?.plot || '默认治愈'}
-  篇幅字数：${keywords?.length || '短篇'}
+  攻方设定：${keywords?.seme || "默认强攻"}
+  受方设定：${keywords?.uke || "默认美人受"}
+  时代背景：${keywords?.era || "默认都市"}
+  关系设定：${keywords?.relationship || "默认宿命牵绊"}
+  主要情节：${keywords?.plot || "默认治愈"}
+  篇幅字数：${keywords?.length || "短篇"}
   
   请提供：
   1. 唯美标题
@@ -37,7 +45,6 @@ export async function wenMoWrite(topic: string, style: DanmeiStyle, keywords?: D
   4. 3个引人入胜的剧情钩子
   5. 相关的人设与氛围标签`;
 
-  // 使用 Gemini 3 Flash 模型进行文本生成
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: prompt,
@@ -50,12 +57,20 @@ export async function wenMoWrite(topic: string, style: DanmeiStyle, keywords?: D
           title: { type: Type.STRING },
           body: { type: Type.STRING, description: "唯美试读段落" },
           pairings: { type: Type.STRING, description: "CP设定" },
-          plotHooks: { type: Type.ARRAY, items: { type: Type.STRING }, description: "3个核心剧情钩子" },
-          traits: { type: Type.ARRAY, items: { type: Type.STRING }, description: "人设标签" }
+          plotHooks: {
+            type: Type.ARRAY,
+            items: { type: Type.STRING },
+            description: "3个核心剧情钩子",
+          },
+          traits: {
+            type: Type.ARRAY,
+            items: { type: Type.STRING },
+            description: "人设标签",
+          },
         },
-        required: ["title", "body", "pairings", "plotHooks", "traits"]
-      }
-    }
+        required: ["title", "body", "pairings", "plotHooks", "traits"],
+      },
+    },
   });
 
   return JSON.parse(response.text);
@@ -64,34 +79,32 @@ export async function wenMoWrite(topic: string, style: DanmeiStyle, keywords?: D
 export async function huaYunPaint(promptText: string, keywords?: DanmeiImageKeywords): Promise<string> {
   const visualDescription = `
     Aesthetic Danmei style illustration.
-    Characters: Seme traits (${keywords?.semeFeature || 'elegant'}), Uke traits (${keywords?.ukeFeature || 'beautiful'}). 
-    Composition: ${keywords?.composition || 'dynamic interactive pose'}, ${keywords?.lighting || 'soft cinematic lighting'}.
-    Colors: Main palette is ${keywords?.colorScheme || 'lavender and mint'}. 
-    Environment: ${keywords?.scene || 'dreamy setting'}, ${keywords?.timeOfDay || 'golden hour'}.
-    Atmosphere: ${keywords?.atmosphere || 'romantic and dreamy'}.
-    Elements: ${keywords?.elements || 'drifting petals, soft sparkles'}.
+    Characters: Seme traits (${keywords?.semeFeature || "elegant"}), Uke traits (${keywords?.ukeFeature || "beautiful"}). 
+    Composition: ${keywords?.composition || "dynamic interactive pose"}, ${keywords?.lighting || "soft cinematic lighting"}.
+    Colors: Main palette is ${keywords?.colorScheme || "lavender and mint"}. 
+    Environment: ${keywords?.scene || "dreamy setting"}, ${keywords?.timeOfDay || "golden hour"}.
+    Atmosphere: ${keywords?.atmosphere || "romantic and dreamy"}.
+    Elements: ${keywords?.elements || "drifting petals, soft sparkles"}.
     Context: ${promptText}.
     Style: Masterpiece, high detail, elegant line art, soft coloring, emotional gaze, anime aesthetic.
   `;
 
-  // 使用 Nano Banana 模型 (gemini-2.5-flash-image) 进行图像生成
-  // 根据准则，Nano Banana 系列不支持 responseMimeType 和 responseSchema
   const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash-image',
+    model: "gemini-2.5-flash-image",
     contents: {
-      parts: [
-        { text: visualDescription }
-      ]
+      parts: [{ text: visualDescription }],
     },
     config: {
       imageConfig: {
-        aspectRatio: "3:4"
-      }
-    }
+        aspectRatio: "3:4",
+      },
+    },
   });
 
-  // 遍历响应部分以找到图像数据
-  for (const part of response.candidates[0].content.parts) {
+  const candidate = response.candidates?.[0];
+  const parts = candidate?.content?.parts || [];
+
+  for (const part of parts) {
     if (part.inlineData) {
       return `data:image/png;base64,${part.inlineData.data}`;
     }
@@ -111,11 +124,11 @@ export async function spiritInspiration(): Promise<DanmeiContent> {
         properties: {
           pairings: { type: Type.STRING },
           description: { type: Type.STRING },
-          traits: { type: Type.ARRAY, items: { type: Type.STRING } }
+          traits: { type: Type.ARRAY, items: { type: Type.STRING } },
         },
-        required: ["pairings", "description", "traits"]
-      }
-    }
+        required: ["pairings", "description", "traits"],
+      },
+    },
   });
   return JSON.parse(response.text);
 }

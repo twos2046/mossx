@@ -5,7 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "dev:server": "npm run build:server && node server-dist/services/server/index.js",
+    "build": "vite build && npm run build:server",
+    "build:server": "tsc -p tsconfig.server.json",
+    "gcp-build": "npm run build",
+    "start": "node server-dist/services/server/index.js",
     "preview": "vite preview"
   },
   "dependencies": {
