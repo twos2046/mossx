@@ -107,6 +107,20 @@ export const api = {
         }
       }
 
+      // 同步回本地存储，避免刷新后收藏状态丢失
+      let savedState = {};
+      if (saved) {
+        try {
+          savedState = JSON.parse(saved);
+        } catch {
+          savedState = {};
+        }
+      }
+      localStorage.setItem('danmei_app_state', JSON.stringify({
+        ...savedState,
+        collections
+      }));
+
       return createResponse(collections);
     } catch (e) {
       return handleError(e);
