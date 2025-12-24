@@ -10,6 +10,20 @@ interface Props {
   onDelete: (id: string) => void;
 }
 
+const getTypeLabel = (item: HistoryItem) => {
+  if (item.type === 'writing') {
+    const styleLabels: Record<string, string> = {
+      ancient: '古风',
+      modern: '现代',
+      fantasy: '玄幻',
+      campus: '校园',
+      cyberpunk: '科幻'
+    };
+    return styleLabels[item.style || ''] || '文稿';
+  }
+  return item.type === 'drawing' ? '画卷' : '灵感';
+};
+
 const HistoryPanel: React.FC<Props> = ({ items, onSelect, onDelete }) => {
   if (items.length === 0) return null;
 
@@ -40,7 +54,7 @@ const HistoryPanel: React.FC<Props> = ({ items, onSelect, onDelete }) => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] text-gray-400 mb-0.5">
-                  {new Date(item.timestamp).toLocaleDateString()} · {item.style === 'ancient' ? '古风' : '现代'}
+                  {new Date(item.timestamp).toLocaleDateString()} · {getTypeLabel(item)}
                 </p>
                 <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 truncate">
                   {item.type === 'writing' ? item.content.title : item.prompt || '灵感火花'}

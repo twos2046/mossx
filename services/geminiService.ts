@@ -2,8 +2,17 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { DanmeiStyle, DanmeiContent, DanmeiKeywords, DanmeiImageKeywords } from "../types";
 
-// Always use process.env.API_KEY directly for initialization
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+let cachedClient: GoogleGenAI | null = null;
+
+const getClient = () => {
+  if (cachedClient) return cachedClient;
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Gemini API key is missing. Please set GEMINI_API_KEY in your environment.");
+  }
+  cachedClient = new GoogleGenAI({ apiKey });
+  return cachedClient;
+};
 
 export async function wenMoWrite(topic: string, style: DanmeiStyle, keywords?: DanmeiKeywords): Promise<DanmeiContent> {
   const systemInstruction = `你是耽美文学创作专家【文墨】，一位优雅的银发紫眸AI耽美作家。你擅长创作辞藻优美、情感张力极强的耽美文学。
@@ -38,7 +47,8 @@ export async function wenMoWrite(topic: string, style: DanmeiStyle, keywords?: D
   5. 相关的人设与氛围标签`;
 
   // 使用 Gemini 3 Flash 模型进行文本生成
-  const response = await ai.models.generateContent({
+  const client = getClient();
+  const response = await client.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: prompt,
     config: {
@@ -76,7 +86,8 @@ export async function huaYunPaint(promptText: string, keywords?: DanmeiImageKeyw
 
   // 使用 Nano Banana 模型 (gemini-2.5-flash-image) 进行图像生成
   // 根据准则，Nano Banana 系列不支持 responseMimeType 和 responseSchema
-  const response = await ai.models.generateContent({
+  const client = getClient();
+  const response = await client.models.generateContent({
     model: 'gemini-2.5-flash-image',
     contents: {
       parts: [
@@ -101,7 +112,8 @@ export async function huaYunPaint(promptText: string, keywords?: DanmeiImageKeyw
 
 export async function spiritInspiration(): Promise<DanmeiContent> {
   const prompt = "为我提供一个耽美创作灵感，包括：一个反差人设对子，一个修罗场梗。";
-  const response = await ai.models.generateContent({
+  const client = getClient();
+  const response = await client.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: prompt,
     config: {
