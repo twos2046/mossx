@@ -1,9 +1,13 @@
+import { GoogleGenAI, Type } from '@google/genai';
+import type { DanmeiStyle, DanmeiContent, DanmeiKeywords, DanmeiImageKeywords } from '../../types';
 
-import { GoogleGenAI, Type } from "@google/genai";
-import { DanmeiStyle, DanmeiContent, DanmeiKeywords, DanmeiImageKeywords } from "../types";
+const apiKey = process.env.GEMINI_API_KEY;
 
-// Always use process.env.API_KEY directly for initialization
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+if (!apiKey) {
+  throw new Error('Missing GEMINI_API_KEY for Gemini client initialization');
+}
+
+const ai = new GoogleGenAI({ apiKey });
 
 export async function wenMoWrite(topic: string, style: DanmeiStyle, keywords?: DanmeiKeywords): Promise<DanmeiContent> {
   const systemInstruction = `你是耽美文学创作专家【文墨】，一位优雅的银发紫眸AI耽美作家。你擅长创作辞藻优美、情感张力极强的耽美文学。
@@ -18,7 +22,7 @@ export async function wenMoWrite(topic: string, style: DanmeiStyle, keywords?: D
   
   返回格式：JSON。`;
 
-  let prompt = `请创作一篇耽美文学作品。
+  const prompt = `请创作一篇耽美文学作品。
   主题：${topic || '未指定主题，请自由发挥美学想象'}
   风格偏好：${style}
   
@@ -37,25 +41,24 @@ export async function wenMoWrite(topic: string, style: DanmeiStyle, keywords?: D
   4. 3个引人入胜的剧情钩子
   5. 相关的人设与氛围标签`;
 
-  // 使用 Gemini 3 Flash 模型进行文本生成
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: 'gemini-3-flash-preview',
     contents: prompt,
     config: {
       systemInstruction,
-      responseMimeType: "application/json",
+      responseMimeType: 'application/json',
       responseSchema: {
         type: Type.OBJECT,
         properties: {
           title: { type: Type.STRING },
-          body: { type: Type.STRING, description: "唯美试读段落" },
-          pairings: { type: Type.STRING, description: "CP设定" },
-          plotHooks: { type: Type.ARRAY, items: { type: Type.STRING }, description: "3个核心剧情钩子" },
-          traits: { type: Type.ARRAY, items: { type: Type.STRING }, description: "人设标签" }
+          body: { type: Type.STRING, description: '唯美试读段落' },
+          pairings: { type: Type.STRING, description: 'CP设定' },
+          plotHooks: { type: Type.ARRAY, items: { type: Type.STRING }, description: '3个核心剧情钩子' },
+          traits: { type: Type.ARRAY, items: { type: Type.STRING }, description: '人设标签' },
         },
-        required: ["title", "body", "pairings", "plotHooks", "traits"]
-      }
-    }
+        required: ['title', 'body', 'pairings', 'plotHooks', 'traits'],
+      },
+    },
   });
 
   return JSON.parse(response.text);
@@ -74,48 +77,46 @@ export async function huaYunPaint(promptText: string, keywords?: DanmeiImageKeyw
     Style: Masterpiece, high detail, elegant line art, soft coloring, emotional gaze, anime aesthetic.
   `;
 
-  // 使用 Nano Banana 模型 (gemini-2.5-flash-image) 进行图像生成
-  // 根据准则，Nano Banana 系列不支持 responseMimeType 和 responseSchema
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash-image',
     contents: {
-      parts: [
-        { text: visualDescription }
-      ]
+      parts: [{ text: visualDescription }],
     },
     config: {
       imageConfig: {
-        aspectRatio: "3:4"
-      }
-    }
+        aspectRatio: '3:4',
+      },
+    },
   });
 
-  // 遍历响应部分以找到图像数据
   for (const part of response.candidates[0].content.parts) {
     if (part.inlineData) {
       return `data:image/png;base64,${part.inlineData.data}`;
     }
   }
-  throw new Error("画韵今日笔墨已干，请稍后再试。");
+
+  throw new Error('画韵今日笔墨已干，请稍后再试。');
 }
 
 export async function spiritInspiration(): Promise<DanmeiContent> {
-  const prompt = "为我提供一个耽美创作灵感，包括：一个反差人设对子，一个修罗场梗。";
+  const prompt = '为我提供一个耽美创作灵感，包括：一个反差人设对子，一个修罗场梗。';
+
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: 'gemini-3-flash-preview',
     contents: prompt,
     config: {
-      responseMimeType: "application/json",
+      responseMimeType: 'application/json',
       responseSchema: {
         type: Type.OBJECT,
         properties: {
           pairings: { type: Type.STRING },
           description: { type: Type.STRING },
-          traits: { type: Type.ARRAY, items: { type: Type.STRING } }
+          traits: { type: Type.ARRAY, items: { type: Type.STRING } },
         },
-        required: ["pairings", "description", "traits"]
-      }
-    }
+        required: ['pairings', 'description', 'traits'],
+      },
+    },
   });
+
   return JSON.parse(response.text);
 }
