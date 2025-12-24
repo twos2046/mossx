@@ -1,10 +1,11 @@
 
-import { wenMoWrite, huaYunPaint, spiritInspiration } from './geminiService';
-import { 
-  ApiResponse, 
-  DanmeiContent, 
-  DanmeiStyle, 
-  HistoryItem, 
+import { huaYunPaint, isGeminiConfigured, spiritInspiration, wenMoWrite } from './geminiService';
+import { auraPaint, inkMuseWrite, isOpenAIConfigured, sparkInspiration } from './openaiService';
+import {
+  ApiResponse,
+  DanmeiContent,
+  DanmeiStyle,
+  HistoryItem,
   CollectionItem,
   DanmeiKeywords,
   DanmeiImageKeywords
@@ -26,13 +27,45 @@ const handleError = (e: any): ApiResponse<any> => {
   return createResponse(null, false, e.message || "未知错误，请稍后重试", 500);
 };
 
+type Provider = 'openai' | 'gemini';
+
+const getProviderOrder = (): Provider[] => {
+  const providers: Provider[] = [];
+  if (isOpenAIConfigured()) providers.push('openai');
+  if (isGeminiConfigured()) providers.push('gemini');
+  return providers;
+};
+
+const runWithProviders = async <T>(handlers: Record<Provider, () => Promise<T>>): Promise<T> => {
+  const providers = getProviderOrder();
+  if (!providers.length) {
+    throw new Error("未配置任何可用的大模型，请检查 API 密钥设置");
+  }
+
+  for (const provider of providers) {
+    try {
+      return await handlers[provider]();
+    } catch (error) {
+      if (provider === providers[providers.length - 1]) {
+        throw error;
+      }
+      console.warn(`${provider} 调用失败，尝试切换其他提供方:`, error);
+    }
+  }
+
+  throw new Error("所有模型提供方均不可用");
+};
+
 export const api = {
   /**
    * POST /api/generate/text
    */
   async generateText(topic: string, style: DanmeiStyle, keywords?: DanmeiKeywords): Promise<ApiResponse<DanmeiContent>> {
     try {
-      const data = await wenMoWrite(topic, style, keywords);
+      const data = await runWithProviders({
+        openai: () => inkMuseWrite(topic, style, keywords),
+        gemini: () => wenMoWrite(topic, style, keywords)
+      });
       return createResponse(data);
     } catch (e) {
       return handleError(e);
@@ -44,7 +77,10 @@ export const api = {
    */
   async generateImage(prompt: string, keywords?: DanmeiImageKeywords): Promise<ApiResponse<DanmeiContent>> {
     try {
-      const imageUrl = await huaYunPaint(prompt, keywords);
+      const imageUrl = await runWithProviders({
+        openai: () => auraPaint(prompt, keywords),
+        gemini: () => huaYunPaint(prompt, keywords)
+      });
       return createResponse({ imageUrl, description: prompt });
     } catch (e) {
       return handleError(e);
@@ -56,7 +92,10 @@ export const api = {
    */
   async generateInspiration(): Promise<ApiResponse<DanmeiContent>> {
     try {
-      const data = await spiritInspiration();
+      const data = await runWithProviders({
+        openai: () => sparkInspiration(),
+        gemini: () => spiritInspiration()
+      });
       return createResponse(data);
     } catch (e) {
       return handleError(e);
