@@ -1,5 +1,3 @@
-
-import { wenMoWrite, huaYunPaint, spiritInspiration } from './geminiService';
 import { 
   ApiResponse, 
   DanmeiContent, 
@@ -26,41 +24,53 @@ const handleError = (e: any): ApiResponse<any> => {
   return createResponse(null, false, e.message || "未知错误，请稍后重试", 500);
 };
 
+const apiClient = async <T>(url: string, options?: RequestInit): Promise<ApiResponse<T>> => {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      ...options,
+    });
+
+    const data = await response.json() as ApiResponse<T>;
+    if (!response.ok) {
+      return createResponse<T>(null, false, data.error || response.statusText, response.status);
+    }
+    return data;
+  } catch (error: any) {
+    return handleError(error);
+  }
+};
+
 export const api = {
   /**
    * POST /api/generate/text
    */
   async generateText(topic: string, style: DanmeiStyle, keywords?: DanmeiKeywords): Promise<ApiResponse<DanmeiContent>> {
-    try {
-      const data = await wenMoWrite(topic, style, keywords);
-      return createResponse(data);
-    } catch (e) {
-      return handleError(e);
-    }
+    return apiClient<DanmeiContent>("/api/generate/text", {
+      method: "POST",
+      body: JSON.stringify({ topic, style, keywords })
+    });
   },
 
   /**
    * POST /api/generate/image
    */
   async generateImage(prompt: string, keywords?: DanmeiImageKeywords): Promise<ApiResponse<DanmeiContent>> {
-    try {
-      const imageUrl = await huaYunPaint(prompt, keywords);
-      return createResponse({ imageUrl, description: prompt });
-    } catch (e) {
-      return handleError(e);
-    }
+    return apiClient<DanmeiContent>("/api/generate/image", {
+      method: "POST",
+      body: JSON.stringify({ prompt, keywords })
+    });
   },
 
   /**
    * POST /api/generate/inspiration
    */
   async generateInspiration(): Promise<ApiResponse<DanmeiContent>> {
-    try {
-      const data = await spiritInspiration();
-      return createResponse(data);
-    } catch (e) {
-      return handleError(e);
-    }
+    return apiClient<DanmeiContent>("/api/generate/inspiration", {
+      method: "POST"
+    });
   },
 
   /**
